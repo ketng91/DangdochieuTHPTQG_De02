@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Practice</title>
+
+<style>
+
+#homeBtn {
+  font-size: 26px;
+  text-decoration: none;
+  margin-right: 10px;
+  color: #fff;
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  transition: 0.25s;
+}
+
+#homeBtn:hover {
+  color: #ffd700;
+  cursor: pointer;
+}
+
+
+
+body {font-family: Arial, sans-serif;margin:0;background:#f5f5f5;}
+header {background:#213C51;color:#fff;padding:10px;text-align:center;}
+#timer {font-size:20px;margin-top:5px;}
+
+.container {width:90%;max-width:900px;margin:20px auto;background:#fff;
+  padding:20px;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,0.1);}
+
+.exercise-title {font-size:22px;margin-bottom:15px;font-weight:bold;color:#333;}
+
+.reading-box{
+  border:1px solid #ccc;
+  padding:10px;
+  height:300px;
+  overflow-y:auto;
+  border-radius:6px;
+  background:#fafafa;
+  margin-bottom:10px;
+  font-size:20px;
+}
+.questions-box{
+border:1px solid #ccc;padding:10px;height:180px;overflow-y:auto;
+  border-radius:6px;background:#ECF4E8;margin-bottom:10px;  font-size:20px;
+}
+
+.question{margin-bottom:12px;}
+#questions label {display:block;margin:6px 0 6px 10px;line-height:1.4;}
+.result-box{border:1px solid #aaa;background:#eef;padding:12px;margin-top:12px;
+  border-radius:6px;white-space:pre-line;}
+
+.buttons {
+  text-align: left;
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.buttons .right { margin-left: auto; }
+
+/* Nút + hover */
+button {
+  font-size: 18px;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+button:hover { background-color:#e0e0e0; cursor:pointer;}
+
+.pagination{text-align:center;margin-top:15px;}
+.pagination button{padding:6px 12px;margin:2px;}
+
+.modal{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);
+  display:none;justify-content:center;align-items:center;}
+.modal-content{
+ background:#fff;padding:18px;border-radius:6px;text-align:center;width:280px;
+ box-shadow:0 0 8px rgba(0,0,0,.3);}
+.modal button{margin:5px;padding:6px 14px;}
+
+.center{text-align:center;}
+
+
+
+.highlight {
+  background: yellow;
+}
+/* Menu highlight nhỏ gọn */
+#textMenu {
+  position: absolute;
+  display: none;
+  background: #fff;
+  border: 1px solid #555;
+  padding: 4px 6px;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0,0,0,.25);
+  z-index: 999;
+}
+
+/* Nút nhỏ */
+#textMenu button {
+  font-size: 12px;
+  padding: 2px 6px;
+  margin: 2px 0;
+  border: none;
+  background: #e8e8e8;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+#textMenu button:hover {
+  background: #d6d6d6;
+}
+
+
+#noteBox {
+  width: 90%;
+  height: 120px;
+  margin-top: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 18px;
+  color: #F63049;
+font-family: "Arial", sans-serif;
+  background: #fffef7;
+  resize: vertical;
+}
+#noteBox:focus {
+  outline: none;
+  border-color: #4a90e2;
+  background: #fff;
+}
+
+
+
+</style>
+</head>
+
+<body>
+<header>
+<a id="homeBtn" href="https://ketng91.github.io/DangdochieuTHPTQG/">🏠</a>
+
+  <h2>Luyện đọc hiểu THPTQG - Lớp Anh thầy Kết | Đề 02: KSCL Bắc Ninh (Đợt 1) 2026 </h2>
+  <div id="timer">00:00</div>
+</header>
+
+<!-- Menu highlight -->
+<div id="textMenu" class="menu">
+  <button onclick="applyHighlight()">Highlight</button>
+  <button onclick="removeHighlight()">Remove</button>
+</div>
+
+<div class="container">
+  <div class="exercise-title" id="title">Test 1</div>
+  <div class="reading-box" id="reading"></div>
+  <div class="questions-box" id="questions"></div>
+
+  <div id="resultArea"></div>
+
+  <div class="buttons">
+    <button onclick="prevQ()">Back</button>
+    <button onclick="nextQ()">Next</button>
+    <button class="right" onclick="openConfirm()">Submit</button>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+
+<textarea id="noteBox" placeholder="Ghi chú khi làm bài..."></textarea>
+
+</div>
+
+<!-- modal -->
+<div class="modal" id="confirmBox">
+  <div class="modal-content">
+    <p>Bạn muốn nộp bài?</p>
+    <button onclick="submitTest()">Yes</button>
+    <button onclick="closeConfirm()">No</button>
+  </div>
+</div>
+
+<script>
+// TIMER
+let sec=0;setInterval(()=>{sec++;let m=Math.floor(sec/60),s=sec%60;
+document.getElementById('timer').innerText=
+(m<10?'0'+m:m)+':'+(s<10?'0'+s:s)},1000);
+
+// DATA có explain
+const exercises={
+1:{
+passage:`Cultural bias remains a significant obstacle in our connected world. As we enter 2025, many communities struggle with preconceptions about people from different backgrounds. These biases often stem from limited exposure to other cultures. Children typically acquire these prejudices from their environment rather than being born with them. Recent studies show that <b><u>unconscious</b></u> bias affects decision-making in education, healthcare, and employment, creating barriers for qualified individuals. Addressing this challenge requires both personal awareness and systemic changes.
+
+In workplaces, cultural bias manifests when managers favor candidates who share <b><u>their</b></u> cultural background. In schools, students from certain cultures may face lower expectations from teachers who harbor preconceptions. Media representation perpetuates stereotypes by portraying specific groups in limited roles. These portrayals reinforce existing biases and shape public perception. Organizations that neglect cultural diversity training risk creating unwelcoming environments for employees and clients alike.
+
+Approaches to mitigate cultural bias include educational initiatives exposing people to diverse perspectives early. Technology facilitates cultural exchange through virtual reality experiences. Many corporations have implemented blind recruitment processes to eliminate discrimination. Community events celebrating different traditions help break down barriers between groups. These combined efforts are gradually shifting attitudes, though progress remains <b><u>uneven</b></u> across regions.
+
+<b><u>The benefits of overcoming cultural bias extend beyond social harmony.</b></u> Research indicates that diverse teams outperform homogeneous ones in problem-solving. Countries embracing multiculturalism often experience economic growth through increased creativity. Individuals who overcome their biases report more fulfilling relationships and broader worldviews. The challenge of confronting cultural bias requires sustained commitment from individuals, organizations, and governments working together.`,
+
+questions:[
+  {
+    q: "Question 12. According to the passage, which of the following is NOT mentioned as a cause of cultural bias?",
+    options: [
+      "A. Environmental influences during childhood",
+      "B. Religious teachings",
+      "C. Limited exposure to other cultures",
+      "D. Media representation of certain groups"
+    ],
+    answer: 1,
+    explain: "Bài đọc nhắc đến ảnh hưởng môi trường (đoạn 1), sự tiếp xúc hạn chế (đoạn 1) và truyền thông (đoạn 2). 'Religious teachings' (giáo dục tôn giáo) không được đề cập."
+  },
+  {
+    q: "Question 13. The word <b><u>'unconscious'</b></u> in paragraph 1 is OPPOSITE in meaning to _________.",
+    options: ["A. unplanned", "B. deliberate", "C. unintentional", "D. automatic"],
+    answer: 1,
+    explain: "'Unconscious' (vô thức/không cố ý) trái nghĩa với 'deliberate' (có tính toán/cố ý)."
+  },
+  {
+    q: "Question 14. The word <b><u>'their'</b></u> in paragraph 2 refers to _________.",
+    options: ["A. communities", "B. managers", "C. workplaces", "D. candidates"],
+    answer: 1,
+    explain: "Trong cụm 'managers favor candidates who share their cultural background', 'their' thay thế cho chủ ngữ 'managers' (các nhà quản lý)."
+  },
+  {
+    q: "Question 15. The word <b><u>'uneven'</b></u> in paragraph 3 could be best replaced by _________.",
+    options: ["A. inconsistent", "B. unnecessary", "C. unsuccessful", "D. insufficient"],
+    answer: 0,
+    explain: "'Uneven' (không đồng đều) có nghĩa tương đương với 'inconsistent' (không nhất quán/lúc thế này lúc thế kia)."
+  },
+  {
+    q: "Question 16. Which of the following best paraphrases the underlined sentence in paragraph 4: 'The benefits of overcoming cultural bias extend beyond social harmony.'?",
+    options: [
+      "A. Overcoming bias in society leads to harmonious relationships between communities",
+      "B. Reducing cultural bias provides advantages that exceed improved social cohesion alone",
+      "C. Social harmony is the primary outcome when cultural bias is gradually eliminated",
+      "D. Cultural differences create tensions that must be resolved to achieve social progress"
+    ],
+    answer: 1,
+    explain: "Cụm 'extend beyond' (vượt xa khỏi/không chỉ dừng lại ở) tương ứng với 'exceed... alone' trong đáp án B."
+  },
+  {
+    q: "Question 17. Which of the following is TRUE according to the passage?",
+    options: [
+      "A. Homogeneous teams typically demonstrate superior problem-solving capabilities",
+      "B. Virtual reality technology has minimal impact on reducing cultural stereotypes",
+      "C. Children acquire cultural prejudices primarily from their surrounding environment",
+      "D. Most organizations have successfully eliminated bias through diversity training"
+    ],
+    answer: 2,
+    explain: "Thông tin ở đoạn 1: 'Children typically acquire these prejudices from their environment rather than being born with them.'"
+  },
+  {
+    q: "Question 18. In which paragraph does the writer mention examples of cultural bias in different settings?",
+    options: ["A. Paragraph 3", "B. Paragraph 1", "C. Paragraph 4", "D. Paragraph 2"],
+    answer: 3,
+    explain: "Đoạn 2 liệt kê các bối cảnh khác nhau (settings) như: nơi làm việc (workplaces), trường học (schools), và truyền thông (media)."
+  },
+  {
+    q: "Question 19. In which paragraph does the writer discuss the positive outcomes of reducing cultural bias?",
+    options: ["A. Paragraph 4", "B. Paragraph 3", "C. Paragraph 2", "D. Paragraph 1"],
+    answer: 0,
+    explain: "Đoạn 4 nêu lên các lợi ích (positive outcomes) như: hiệu quả làm việc nhóm, tăng trưởng kinh tế, và các mối quan hệ tốt đẹp hơn."
+  }
+]},
+2:{
+passage:`<b><u>[I]</b></u> The environmental impact of Christmas trees goes beyond choosing real or artificial. <b><u>[II]</b></u> Real trees, typically spruce, fir, or pine, are grown on plantations for about ten years, supporting biodiversity by providing habitats for farmland birds and insects. <b><u>[III]</b></u> These trees play a small but meaningful role in preserving rural landscapes and preventing alternative, less sustainable land uses, like urban development. <b><u>[IV]</b></u>.
+
+<b><u>Artificial trees, while reusable, have a significantly higher carbon footprint during production and transport.</b></u> According to the Carbon Trust, they must be reused for several years to match the lower carbon footprint of real trees.
+
+Disposal methods are critical. Real trees release their stored carbon upon decay, but if they end up in landfill, anaerobic conditions produce methane, a far more <b><u>potent</b></u> greenhouse gas. Composting, chipping, or using trees for energy or habitat restoration are far better alternatives. Additionally, some companies now offer tree rentals, and pot-grown trees can be replanted, making <b><u>them</b></u> excellent sustainable options.
+
+Sustainability efforts can also include buying locally grown trees, reducing travel emissions, and supporting certified sustainable farms. While Christmas trees represent a minor part of land use and the global carbon cycle, their management highlights opportunities for improvement. Reducing waste, eliminating fertilisers, and avoiding landfill disposal are practical steps toward making this <b><u>cherished</b></u> tradition more eco-friendly.
+
+Though a small element of the festive season, Christmas trees remind us of the broader need to balance ecological responsibility with tradition. With mindful practices, this holiday symbol can contribute positively to both biodiversity and climate goals.
+</b></u>`,
+
+questions:[
+  {
+    q: "Question 20. Where in paragraph 1 does the following sentence best fit: <b><u>'However, concerns arise from the fertilisers and pesticides used to grow them and the emissions from harvesting, transporting, and managing them.'</b></u>?",
+    options: ["A. [III]", "B. [IV]", "C. [I]", "D. [II]"],
+    answer: 0,
+    explain: "Vị trí [III] là hợp lý nhất vì nó đứng sau những lợi ích của cây thật và tạo ra sự đối lập bằng từ 'However' để nói về những mặt hạn chế (phân bón, thuốc trừ sâu) trước khi chuyển sang nói về cây giả ở câu tiếp theo."
+  },
+  {
+    q: "Question 21. According to paragraph 1, which of the following is NOT mentioned about real Christmas trees?",
+    options: [
+      "A. They are beneficial to biodiversity.",
+      "B. They help prevent unsustainable land use.",
+      "C. They are grown on plantations for a long time.",
+      "D. They can help slow down urbanisation."
+    ],
+    answer: 3,
+    explain: "Mặc dù bài đọc có nói cây thật giúp ngăn chặn 'urban development' (phát triển đô thị), nhưng không khẳng định chúng giúp 'làm chậm quá trình đô thị hóa' (slow down urbanisation) một cách trực tiếp như một công cụ quy hoạch."
+  },
+  {
+    q: "Question 22. Which of the following best paraphrases the underlined sentence in paragraph 2?",
+    options: [
+      "A. Although artificial trees can be reused, they produce much higher carbon emissions during manufacturing and transport.",
+      "B. Not until artificial trees are reused many times do their production and transport reduce overall carbon emissions.",
+      "C. No matter how reusable artificial trees may be, their production and transport rarely result in significant carbon emissions.",
+      "D. It is their ability to be reused that makes artificial trees less harmful despite emissions from production and transport."
+    ],
+    answer: 0,
+    explain: "Lựa chọn A truyền tải chính xác cấu trúc 'while' (mặc dù) và 'higher carbon footprint' (lượng khí thải carbon cao hơn) của câu gốc."
+  },
+  {
+    q: "Question 23. Which of the following best summarises paragraph 3?",
+    options: [
+      "A. Real trees decay naturally, so landfill is the most convenient option, although composting may sometimes be used.",
+      "B. Real trees release carbon, but landfill creates worse methane, calling for composting as the most sustainable alternative.",
+      "C. Pot-grown trees and rented ones are widely used because they release fewer emissions than chipped or composted trees.",
+      "D. Real trees release carbon when decaying, but landfill causes worse methane, which highlights the role of sustainable options."
+    ],
+    answer: 3,
+    explain: "Lựa chọn D tóm tắt đầy đủ nhất các ý chính: sự phân hủy của cây thật, vấn đề khí methane ở bãi rác và các giải pháp bền vững như cây trồng trong chậu hay thuê cây."
+  },
+  {
+    q: "Question 24. The word <b><u>'potent'</b></u> in paragraph 3 is CLOSEST in meaning to ________.",
+    options: ["A. natural", "B. powerful", "C. typical", "D. widespread"],
+    answer: 1,
+    explain: "'Potent' có nghĩa là có hiệu lực mạnh, quyền năng; trong ngữ cảnh khí nhà kính, nó đồng nghĩa với 'powerful' (mạnh mẽ)."
+  },
+  {
+    q: "Question 25. The word <b><u>'them'</b></u> in paragraph 3 refers to ________.",
+    options: [
+      "A. anaerobic conditions",
+      "B. tree rentals and pot-grown trees",
+      "C. real trees",
+      "D. sustainable options"
+    ],
+    answer: 1,
+    explain: "Trong câu 'pot-grown trees can be replanted, making them...', từ 'them' thay thế cho đối tượng được nhắc đến ngay trước đó là 'tree rentals and pot-grown trees'."
+  },
+  {
+    q: "Question 26. The word <b><u>'cherished'</b></u> in paragraph 4 is OPPOSITE in meaning to ________.",
+    options: ["A. appreciated", "B. forgotten", "C. dominant", "D. deep-rooted"],
+    answer: 1,
+    explain: "'Cherished' nghĩa là được yêu thương, trân trọng; trái nghĩa với nó là 'forgotten' (bị lãng quên)."
+  },
+  {
+    q: "Question 27. Which of the following is true according to the passage?",
+    options: [
+      "A. Real Christmas trees pose a greater environmental threat if they are disposed of in landfills.",
+      "B. Most companies are sluggish in providing sustainable alternatives to fake Christmas trees.",
+      "C. Buying locally grown Christmas trees is the most sustainable way to enjoy the holiday.",
+      "D. The carbon footprint of real Christmas trees is comparable to that of artificial ones."
+    ],
+    answer: 0,
+    explain: "Đoạn 3 khẳng định nếu cây thật bị đưa ra bãi rác (landfill), chúng tạo ra khí methane - một loại khí nhà kính cực mạnh, gây hại lớn cho môi trường."
+  },
+  {
+    q: "Question 28. Which of the following can be inferred from the passage?",
+    options: [
+      "A. Real Christmas trees are considered more environmentally friendly than artificial ones.",
+      "B. Reusing real Christmas trees for energy and habitat restoration should be prioritised.",
+      "C. Managing Christmas trees can serve as a small but meaningful step towards sustainability.",
+      "D. Turning Christmas into an eco-friendlier holiday depends mostly on Christmas trees."
+    ],
+    answer: 2,
+    explain: "Bài đọc kết luận rằng dù cây Giáng sinh chỉ là một phần nhỏ trong việc sử dụng đất, việc quản lý chúng tốt là cơ hội để cải thiện và hướng tới mục tiêu khí hậu."
+  },
+  {
+    q: "Question 29. Which of the following best summarises the passage?",
+    options: [
+      "A. Christmas tree sustainability compares real trees' biodiversity benefits with landfill methane...",
+      "B. Choosing between real and artificial Christmas trees is complex...",
+      "C. The environmental impact of Christmas trees involves comparing real and artificial options...",
+      "D. Beyond real or artificial, Christmas tree sustainability requires understanding their carbon footprint from growth to disposal, promoting options like composting and local sourcing to align this tradition with biodiversity and climate goals."
+    ],
+    answer: 3,
+    explain: "Lựa chọn D là bản tóm tắt toàn diện nhất, bao hàm từ giai đoạn trồng trọt, lượng khí thải carbon, đến cách tiêu hủy và các hành động thực tế để đạt mục tiêu môi trường."
+  }
+
+]}
+};
+// STATE
+let currentTest=1,currentQuestionIndex=0;
+let savedAnswers={}; // lưu kiểu { "1-0":2 , "1-1":1 , "2-3":0 }
+
+function loadTest(num){
+ currentTest=num;
+document.getElementById('title').innerText=
+'Read the following passage and mark the letter A, B, C or D to indicate the best answer to each of the following questions.';
+
+ document.getElementById('resultArea').innerHTML='';
+ currentQuestionIndex=0;
+ document.getElementById('reading').innerHTML = exercises[num].passage.replace(/\n/g,'<br>');
+ renderQuestions(); renderPagination();
+}
+
+function renderQuestions(){
+ const q=exercises[currentTest].questions[currentQuestionIndex];
+ let key=currentTest+'-'+currentQuestionIndex;
+ let html='<div class="question">'+(currentQuestionIndex+1)+'. '+ q.q +'</div>';
+
+ q.options.forEach((opt,i)=>{
+   const checked = savedAnswers[key]==i ? 'checked' : '';
+   html+=`<label><input type="radio" name="q${currentQuestionIndex}"
+    value="${i}" ${checked} onclick="saveAnswer(${i})"> ${opt}</label>`;
+ });
+
+ document.getElementById('questions').innerHTML=html;
+}
+
+function saveAnswer(v){
+ savedAnswers[currentTest+'-'+currentQuestionIndex]=v;
+}
+
+function nextQ(){
+ if(currentQuestionIndex < exercises[currentTest].questions.length-1){
+   currentQuestionIndex++;
+   renderQuestions();
+ }
+}
+function prevQ(){
+ if(currentQuestionIndex>0){
+   currentQuestionIndex--;
+   renderQuestions();
+ }
+}
+
+function renderPagination(){
+ let h='';
+ for(let k in exercises)
+   h+=`<button onclick="loadTest(${k})">Passage ${k}</button>`;
+ document.getElementById('pagination').innerHTML=h;
+}
+
+// Confirm box
+function openConfirm(){document.getElementById('confirmBox').style.display='flex';}
+function closeConfirm(){document.getElementById('confirmBox').style.display='none';}
+
+// SUBMIT
+function submitTest(){
+ closeConfirm();
+ const qs=exercises[currentTest].questions;
+ let correct=0,txt='';
+
+ for(let i=0;i<qs.length;i++){
+   let key=currentTest+'-'+i;
+   let chosen=savedAnswers[key];
+   let ok=chosen==qs[i].answer;
+   if(ok) correct++;
+   txt+=`${i+1}. ${qs[i].q}
+Your answer: ${chosen!=null?qs[i].options[chosen]:'(no answer)'}
+Correct answer: ${qs[i].options[qs[i].answer]}
+${ok?'✓ Correct':'✗ Wrong'}
+Giải thích: ${qs[i].explain}\n\n`;
+ }
+
+ document.getElementById('resultArea').innerHTML=
+ `<div class="result-box">Kết quả: ${correct}/${qs.length}\n\n${txt}</div>`;
+}
+
+let selectedRange = null;
+
+// Hiện menu khi chọn chữ hoặc click highlight
+document.addEventListener('mouseup', function(e) {
+  const sel = window.getSelection();
+
+  // Nếu click vào chữ đã highlight
+  if (e.target.classList.contains('highlight')) {
+    selectedRange = null;
+    showMenu(e.pageX, e.pageY);
+    selectedRange = e.target;
+    return;
+  }
+
+  // Nếu không select gì thì đóng menu
+  if (!sel.toString().trim()) {
+    hideMenu();
+    return;
+  }
+
+  selectedRange = sel.getRangeAt(0);
+  showMenu(e.pageX, e.pageY);
+});
+
+// Highlight
+function applyHighlight() {
+  if (!selectedRange) return;
+
+  // Nếu click highlight đang tồn tại → bỏ highlight trước rồi tô lại
+  if (selectedRange instanceof HTMLElement && selectedRange.classList.contains('highlight')) {
+    removeHighlight();
+    return;
+  }
+
+  const span = document.createElement('span');
+  span.className = 'highlight';
+  span.appendChild(selectedRange.extractContents());
+  selectedRange.insertNode(span);
+
+  selectedRange = null;
+  hideMenu();
+}
+
+// Remove highlight
+function removeHighlight() {
+  if (!selectedRange) return;
+
+  if (selectedRange instanceof HTMLElement && selectedRange.classList.contains('highlight')) {
+    const parent = selectedRange.parentNode;
+    while (selectedRange.firstChild) {
+      parent.insertBefore(selectedRange.firstChild, selectedRange);
+    }
+    parent.removeChild(selectedRange);
+  }
+  selectedRange = null;
+  hideMenu();
+}
+
+// menu show/hide
+function showMenu(x, y) {
+  const box = document.getElementById('textMenu');
+  box.style.left = x + 'px';
+  box.style.top = y + 'px';
+  box.style.display = 'block';
+}
+function hideMenu() {
+  document.getElementById('textMenu').style.display = 'none';
+}
+
+
+
+window.onload=()=>loadTest(1);
+</script>
+
+
+
+</body>
+</html>
