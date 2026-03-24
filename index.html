@@ -174,6 +174,22 @@ font-family: "Arial", sans-serif;
 
 <textarea id="noteBox" placeholder="Ghi chú khi làm bài..."></textarea>
 
+<!-- Bài dịch toggle -->
+<div style="margin-top:10px;">
+  <button onclick="toggleTranslation()">📖 Bài dịch</button>
+</div>
+
+<div id="translationBox" style="
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  background:#f9f9ff;
+  font-size:18px;
+  line-height:1.6;
+">
+</div>
 </div>
 
 <!-- modal -->
@@ -389,6 +405,7 @@ document.getElementById('title').innerText=
 
  document.getElementById('resultArea').innerHTML='';
  currentQuestionIndex=0;
+document.getElementById('translationBox').style.display = 'none';
  document.getElementById('reading').innerHTML = exercises[num].passage.replace(/\n/g,'<br>');
  renderQuestions(); renderPagination();
 }
@@ -526,7 +543,126 @@ function hideMenu() {
   document.getElementById('textMenu').style.display = 'none';
 }
 
+// Dữ liệu bài dịch
+const translations = {
+  1: `Cultural bias remains a significant obstacle in our connected world.
+(Định kiến văn hóa vẫn là một trở ngại đáng kể trong thế giới kết nối của chúng ta.)
 
+As we enter 2025, many communities struggle with preconceptions about people from different backgrounds.
+(Khi bước vào năm 2025, nhiều cộng đồng vẫn phải vật lộn với những định kiến sẵn có về những người đến từ các nền tảng khác nhau.)
+
+These biases often stem from limited exposure to other cultures.
+(Những định kiến này thường bắt nguồn từ việc ít tiếp xúc với các nền văn hóa khác.)
+
+Children typically acquire these prejudices from their environment rather than being born with them.
+(Trẻ em thường tiếp thu những định kiến này từ môi trường xung quanh chứ không phải sinh ra đã có.)
+
+Recent studies show that unconscious bias affects decision-making in education, healthcare, and employment, creating barriers for qualified individuals.
+(Các nghiên cứu gần đây cho thấy định kiến vô thức ảnh hưởng đến việc ra quyết định trong giáo dục, y tế và việc làm, tạo ra rào cản cho những người có đủ năng lực.)
+
+Addressing this challenge requires both personal awareness and systemic changes.
+(Để giải quyết thách thức này cần có cả nhận thức cá nhân và những thay đổi mang tính hệ thống.)
+
+In workplaces, cultural bias manifests when managers favor candidates who share their cultural background.
+(Tại nơi làm việc, định kiến văn hóa thể hiện khi nhà quản lý ưu ái những ứng viên có cùng nền tảng văn hóa với mình.)
+
+In schools, students from certain cultures may face lower expectations from teachers who harbor preconceptions.
+(Trong trường học, học sinh từ một số nền văn hóa nhất định có thể phải đối mặt với kỳ vọng thấp hơn từ giáo viên mang sẵn định kiến.)
+
+Media representation perpetuates stereotypes by portraying specific groups in limited roles.
+(Truyền thông góp phần duy trì định kiến bằng cách khắc họa một số nhóm người trong những vai trò hạn chế.)
+
+These portrayals reinforce existing biases and shape public perception.
+(Những cách khắc họa này củng cố các định kiến sẵn có và định hình nhận thức của công chúng.)
+
+Organizations that neglect cultural diversity training risk creating unwelcoming environments for employees and clients alike.
+(Các tổ chức bỏ qua việc đào tạo về đa dạng văn hóa có nguy cơ tạo ra môi trường không thân thiện cho cả nhân viên lẫn khách hàng.)
+
+Approaches to mitigate cultural bias include educational initiatives exposing people to diverse perspectives early.
+(Các phương pháp giảm thiểu định kiến văn hóa bao gồm những sáng kiến giáo dục giúp con người tiếp cận với các góc nhìn đa dạng từ sớm.)
+
+Technology facilitates cultural exchange through virtual reality experiences.
+(Công nghệ thúc đẩy sự giao lưu văn hóa thông qua các trải nghiệm thực tế ảo.)
+
+Many corporations have implemented blind recruitment processes to eliminate discrimination.
+(Nhiều công ty đã áp dụng quy trình tuyển dụng ẩn danh nhằm loại bỏ sự phân biệt đối xử.)
+
+Community events celebrating different traditions help break down barriers between groups.
+(Các sự kiện cộng đồng tôn vinh những truyền thống khác nhau giúp phá vỡ rào cản giữa các nhóm.)
+
+These combined efforts are gradually shifting attitudes, though progress remains uneven across regions.
+(Những nỗ lực kết hợp này đang dần thay đổi thái độ, dù tiến độ vẫn không đồng đều giữa các khu vực.)
+
+The benefits of overcoming cultural bias extend beyond social harmony.
+(Lợi ích của việc vượt qua định kiến văn hóa không chỉ dừng lại ở sự hòa hợp xã hội.)
+
+Research indicates that diverse teams outperform homogeneous ones in problem-solving.
+(Nghiên cứu cho thấy các nhóm đa dạng hoạt động hiệu quả hơn các nhóm đồng nhất trong việc giải quyết vấn đề.)
+
+Countries embracing multiculturalism often experience economic growth through increased creativity.
+(Các quốc gia chấp nhận đa văn hóa thường đạt được tăng trưởng kinh tế nhờ sự gia tăng sáng tạo.)
+
+Individuals who overcome their biases report more fulfilling relationships and broader worldviews.
+(Những cá nhân vượt qua được định kiến của mình thường có các mối quan hệ ý nghĩa hơn và tầm nhìn rộng mở hơn.)
+
+The challenge of confronting cultural bias requires sustained commitment from individuals, organizations, and governments working together.
+(Thách thức trong việc đối mặt với định kiến văn hóa đòi hỏi sự cam kết lâu dài từ cá nhân, tổ chức và chính phủ cùng phối hợp hành động.)`,
+
+2: `The environmental impact of Christmas trees goes beyond choosing real or artificial.
+(Tác động môi trường của cây thông Noel vượt xa việc lựa chọn cây thật hay cây giả.)
+
+Real trees, typically spruce, fir, or pine, are grown on plantations for about ten years, supporting biodiversity by providing habitats for farmland birds and insects.
+(Cây thật, thường là vân sam, linh sam hoặc thông, được trồng trên các trang trại trong khoảng mười năm, góp phần hỗ trợ đa dạng sinh học bằng cách cung cấp môi trường sống cho chim đồng ruộng và côn trùng.)
+
+These trees play a small but meaningful role in preserving rural landscapes and preventing alternative, less sustainable land uses, like urban development.
+(Những cây này đóng vai trò nhỏ nhưng ý nghĩa trong việc bảo tồn cảnh quan nông thôn và ngăn chặn các hình thức sử dụng đất kém bền vững hơn, như đô thị hóa.)
+
+Artificial trees, while reusable, have a significantly higher carbon footprint during production and transport.
+(Cây nhân tạo, mặc dù có thể tái sử dụng, lại có lượng khí thải carbon cao hơn đáng kể trong quá trình sản xuất và vận chuyển.)
+
+According to the Carbon Trust, they must be reused for several years to match the lower carbon footprint of real trees.
+(Theo Carbon Trust, chúng cần được tái sử dụng trong nhiều năm mới có thể ngang bằng với mức phát thải carbon thấp hơn của cây thật.)
+
+Disposal methods are critical.
+(Phương pháp xử lý sau khi sử dụng là yếu tố then chốt.)
+
+Real trees release their stored carbon upon decay, but if they end up in landfill, anaerobic conditions produce methane, a far more potent greenhouse gas.
+(Cây thật giải phóng lượng carbon tích trữ khi phân hủy, nhưng nếu bị đưa vào bãi chôn lấp, điều kiện yếm khí sẽ tạo ra khí methane – một loại khí nhà kính mạnh hơn nhiều.)
+
+Composting, chipping, or using trees for energy or habitat restoration are far better alternatives.
+(Ủ phân, nghiền nhỏ, hoặc sử dụng cây để tạo năng lượng hay phục hồi môi trường sống là những phương án tốt hơn nhiều.)
+
+Additionally, some companies now offer tree rentals, and pot-grown trees can be replanted, making them excellent sustainable options.
+(Ngoài ra, một số công ty hiện cung cấp dịch vụ thuê cây, và cây trồng trong chậu có thể được trồng lại, khiến chúng trở thành những lựa chọn bền vững tuyệt vời.)
+
+Sustainability efforts can also include buying locally grown trees, reducing travel emissions, and supporting certified sustainable farms.
+(Các nỗ lực hướng tới tính bền vững cũng có thể bao gồm việc mua cây trồng tại địa phương, giảm khí thải từ vận chuyển và hỗ trợ các trang trại đạt chứng nhận bền vững.)
+
+While Christmas trees represent a minor part of land use and the global carbon cycle, their management highlights opportunities for improvement.
+(Mặc dù cây thông Noel chỉ chiếm một phần nhỏ trong việc sử dụng đất và chu trình carbon toàn cầu, cách quản lý chúng vẫn cho thấy nhiều cơ hội để cải thiện.)
+
+Reducing waste, eliminating fertilisers, and avoiding landfill disposal are practical steps toward making this cherished tradition more eco-friendly.
+(Giảm thiểu rác thải, loại bỏ phân bón và tránh chôn lấp là những bước đi thiết thực để biến truyền thống quen thuộc này trở nên thân thiện với môi trường hơn.)
+
+Though a small element of the festive season, Christmas trees remind us of the broader need to balance ecological responsibility with tradition.
+(Mặc dù chỉ là một phần nhỏ của mùa lễ hội, cây thông Noel nhắc nhở chúng ta về nhu cầu rộng lớn hơn trong việc cân bằng giữa trách nhiệm sinh thái và truyền thống.)
+
+With mindful practices, this holiday symbol can contribute positively to both biodiversity and climate goals.
+(Với những thực hành có ý thức, biểu tượng ngày lễ này có thể đóng góp tích cực cho cả đa dạng sinh học và các mục tiêu khí hậu.)`
+
+};
+
+// Toggle hiển thị bài dịch
+function toggleTranslation(){
+  const box = document.getElementById('translationBox');
+
+  if(box.style.display === 'none'){
+    box.style.display = 'block';
+    box.innerText = translations[currentTest] || 'Chưa có bài dịch cho đoạn này.';
+  } else {
+    box.style.display = 'none';
+  }
+}
 
 window.onload=()=>loadTest(1);
 </script>
